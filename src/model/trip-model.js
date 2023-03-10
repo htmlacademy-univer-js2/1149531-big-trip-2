@@ -2,21 +2,24 @@ import {generateTripDestination, generateTripOffer, generateTripPoint} from '../
 
 
 export default class TripModel {
+  #trips = null;
+  #offers = null;
+  #destinations = null;
   constructor(length) {
-    this.trips = Array.from({ length }, generateTripPoint );
-    this.offers = Array.from({ length }, (item, index) => generateTripOffer(index % 2) );
-    this.destinations = Array.from({ length }, generateTripDestination );
+    this.#trips = Array.from({ length }, generateTripPoint );
+    this.#offers = Array.from({ length }, (item, index) => generateTripOffer(index % 2) );
+    this.#destinations = Array.from({ length }, generateTripDestination );
   }
 
-  getTripsInfo() {
-    return this.trips;
+  get tripsInfo() {
+    return this.#trips;
   }
 
-  getTripsOffers() {
-    return this.offers;
+  get tripsOffers() {
+    return this.#offers;
   }
 
-  getTripsDestinations() {
-    return this.destinations;
+  get tripsDestinations() {
+    return this.#destinations;
   }
 }
