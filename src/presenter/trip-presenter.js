@@ -4,20 +4,54 @@ import RoutePointView from '../view/route-point-view';
 import FormCreateView from '../view/form-create-view';
 
 export default class TripPresenter {
-  init(tripEventsContainer, tripModel) {
-    const tripListContainer = new TripListView();
-    const trips = tripModel.tripsInfo;
-    const offers = tripModel.tripsOffers;
-    const destinations = tripModel.tripsDestinations;
-    render(tripListContainer, tripEventsContainer);
-    console.log(tripListContainer.element);
-    render(new FormCreateView(trips[0], offers, destinations), tripListContainer.element);
-    render(new FormCreateView(null, offers, destinations), tripListContainer.element);
-    for (let i = 0; i < trips.length; i++) {
-      const matchOffers = offers.filter((offer) => trips[i].offers.includes(offer.id));
-      const matchDestination = destinations.filter((destination) => trips[i].destination === destination);
+  #tripEventsContainer = null;
+  #tripListContainer = new TripListView();
+  #trips = null;
+  #offers = null;
+  #destinations = null;
 
-      render(new RoutePointView(trips[i], matchOffers, matchDestination), tripListContainer.element);
+  constructor(tripEventsContainer, tripModel) {
+    this.#tripEventsContainer = tripEventsContainer;
+    this.#trips = tripModel.tripsInfo;
+    this.#offers = tripModel.tripsOffers;
+    this.#destinations = tripModel.tripsDestinations;
+  }
+
+  init() {
+    render(this.#tripListContainer, this.#tripEventsContainer);
+    this.#renderRoutePoints()
+  }
+
+  #renderRoutePoints = () => {
+    for (let i = 0; i < this.#trips.length; i++) {
+      const matchOffers = this.#offers.filter((offer) => this.#trips[i].offers.includes(offer.id));
+      const matchDestination = this.#destinations.filter((destination) => this.#offers[i].destination === destination);
+      const routePoint = new RoutePointView(this.#trips[i], matchOffers, matchDestination)
+      this.#settingsRenderPoint(routePoint)
+      render(routePoint, this.#tripListContainer.element);
     }
+  }
+
+  #settingsRenderPoint = (routePoint) => {
+    const form = new FormCreateView(this.#trips[0], this.#offers, this.#destinations)
+    const escCloseForm = (e) => {
+      if (e.key !== 'Esc' && e.key !== 'Escape') return;
+      closeForm(e)
+    }
+
+    const closeForm = (event) => {
+      event.preventDefault();
+      this.#tripListContainer.element.replaceChild(routePoint.element, form.element)
+      document.removeEventListener('keydown', escCloseForm)
+    }
+
+    const openForm = () => {
+      this.#tripListContainer.element.replaceChild(form.element, routePoint.element)
+      document.addEventListener('keydown', escCloseForm)
+    }
+    form.element.addEventListener('submit', closeForm)
+    form.element.querySelector('.event__rollup-btn').addEventListener('click', closeForm)
+    routePoint.element.querySelector('.event__rollup-btn').addEventListener('click', openForm)
+
   }
 }
