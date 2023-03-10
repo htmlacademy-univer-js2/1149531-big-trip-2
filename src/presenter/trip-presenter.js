@@ -2,6 +2,7 @@ import {render} from '../render';
 import TripListView from '../view/trip-list-view';
 import RoutePointView from '../view/route-point-view';
 import FormCreateView from '../view/form-create-view';
+import NoRoutePointsView from '../view/no-route-points';
 
 export default class TripPresenter {
   #tripEventsContainer = null;
@@ -19,7 +20,11 @@ export default class TripPresenter {
 
   init() {
     render(this.#tripListContainer, this.#tripEventsContainer);
-    this.#renderRoutePoints()
+    if (this.#trips.length > 0) {
+      this.#renderRoutePoints()
+    } else {
+      this.#renderNoRoutePoints()
+    }
   }
 
   #renderRoutePoints = () => {
@@ -30,6 +35,10 @@ export default class TripPresenter {
       this.#settingsRenderPoint(routePoint)
       render(routePoint, this.#tripListContainer.element);
     }
+  }
+
+  #renderNoRoutePoints = () => {
+    render(new NoRoutePointsView(), this.#tripListContainer.element);
   }
 
   #settingsRenderPoint = (routePoint) => {
